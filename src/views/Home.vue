@@ -1,86 +1,126 @@
 <template>
-  <div class="screen" align="center">
-    <b-card
-    @submit.prevent="login"
-      class="cardlogin"
-      style="
-        background-color: #2e4a62;
-        margin-top: 100px;
-        padding: 0px;
-        color: white;
-      "
+  <div>
+    <div
+      class="screen"
+      style="justify-content: center; align-items: center"
+      align="center"
     >
-      <b-row>
-        <b-col cols="12" lg="6" style="background-color: ">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/476/476863.png"
-            alt=""
-            width="200px"
-            height="200px"
-            style="margin-top: 5px"
-          />
-        </b-col>
-        <b-col cols="12" lg="6">
-          <h3 style="color: #fff; margin-top: 20px">Member Login</h3>
+      <b-card
+        @submit.prevent="login"
+        class="cardlogin"
+        style="background-color: #2e4a62; padding: 0px; color: white"
+      >
+        <b-row>
+          <b-col cols="12" lg="6" style="background-color: ">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/476/476863.png"
+              alt=""
+              width="200px"
+              height="200px"
+              style="margin-top: 5px"
+            />
+          </b-col>
+          <b-col cols="12" lg="6">
+            <h3 style="color: #fff; margin-top: 20px">Member Login</h3>
 
-          <div class="mt-2" align="left">
-            <b-input-group size="sm" class="mb-2" style="margin-top: 25px">
-              <b-input-group-prepend is-text>
-                <b-icon icon="person-fill"></b-icon>
-              </b-input-group-prepend>
-              <b-form-input type="search" placeholder="Username" v-model="USERNAME"
-               ></b-form-input>
-            </b-input-group>
-            <b-input-group size="sm" class="mb-2" style="margin-top: 20px">
-              <b-input-group-prepend is-text>
-                <b-icon icon="lock-fill"></b-icon>
-              </b-input-group-prepend>
-              <b-form-input type="search" placeholder="Password" v-model="PASSWORD"></b-form-input>
-            </b-input-group>
-          </div>
+            <div class="mt-2" align="left">
+              <b-input-group size="sm" class="mb-2" style="margin-top: 25px">
+                <b-input-group-prepend is-text>
+                  <b-icon icon="person-fill"></b-icon>
+                </b-input-group-prepend>
+                <b-form-input
+                  type="search"
+                  placeholder="Username"
+                  v-model="USERNAME"
+                ></b-form-input>
+              </b-input-group>
+              <b-input-group size="sm" class="mb-2" style="margin-top: 20px">
+                <b-input-group-prepend is-text>
+                  <b-icon icon="lock-fill"></b-icon>
+                </b-input-group-prepend>
+                <b-form-input
+                  placeholder="Password"
+                  type="password"
+                  v-model="PASSWORD"
+                ></b-form-input>
+              </b-input-group>
+            </div>
 
-          <div>
-            <button class="buttonL" type="submit" style="margin-top: 10px">
-              <b>LOGIN</b>
-            </button>
-            <br>
-            <a style="margin-top: 10px" @click="goRegister()">Create Account ?</a>
-          </div>
-        </b-col>
-      </b-row>
-    </b-card>
+            <div>
+              <button
+                class="buttonL"
+                @click="login()"
+                type="submit"
+                style="margin-top: 10px"
+              >
+                <b>LOGIN</b>
+              </button>
+              <br />
+              <a style="margin-top: 10px" @click="goRegister()"
+                >Create Account ?</a
+              >
+            </div>
+          </b-col>
+        </b-row>
+      </b-card>
+      <b-modal ref="Notpassword" centered hide-footer>
+        <div class="d-block text-center">
+          <b>รหัสผ่านไม่ถูกต้อง</b>
+        </div>
+      </b-modal>
+    </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import firebase from "firebase";
+const api_url = require("../../utilities/api");
 export default {
   data: {
     USERNAME: "",
     PASSWORD: "",
-    
   },
-  methods:{
-    goRegister(){
+  methods: {
+    goRegister() {
       this.$router.push({ path: "/Register" });
     },
-    login(){
-      if(this.USERNAME === THIS.USERNAME && this.PASSWORD === THIS.PASSWORD){
-        localStorage.getItem("USERNAME", this.USERNAME)
-        window.location="Profile.vue"
-      }else{
-        alert("ไม่ถูกต้อง")
+    async login() {
+      if (this.USERNAME != "" && this.PASSWORD != "") {
+        var data = {
+          USERNAME: this.USERNAME,
+          PASSWORD: this.PASSWORD,
+        };
+        await axios.post(`${api_url.api_url}/login`, data).then((response) => {
+          console.log(response.data);
+          var res = response.data[0];
+          if (response.data.length > 0) {
+            localStorage.setItem("IDMEMBER", res.MEMBER_ID);
+            this.$router.push({ path: "/Profile" });
+          } else {
+            this.$refs["Notpassword"].show();
+          }
+        });
+      } else {
+        this.$refs["Notpassword"].show();
       }
-    }
-  }
-   
-  
+    },
+  },
 };
 </script>
-<style>
+<style scoped>
 .screen {
-  padding: 0px 20px;
+  /* padding: 0px 20px; */
   background-color: #f2f2f3;
   height: 100vh;
+
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 1em;
 }
 .buttonL {
   padding: 10px 20px;
@@ -110,7 +150,6 @@ export default {
   transform: translateY(0);
 }
 .cardlogin {
-  
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2),
     0 6px 20px 0 rgba(253, 253, 253, 0.19);
 }
