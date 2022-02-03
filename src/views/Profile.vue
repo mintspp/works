@@ -5,7 +5,7 @@
       style="justify-content: center; align-items: center"
       align="center"
     >
-      <b-card class="cardP" style="width: 20rem">
+      <b-card class="cardP" style="width: 30rem">
         <b-img
           rounded="circle"
           :src="item.PROFILE"
@@ -15,17 +15,23 @@
         <div style="margin-top: 10px">
           <b>{{ item.NAME }} {{ item.LASTNAME }}</b>
         </div>
+        <div style="margin-top: 10px">
+          <p>Username : {{ item.USERNAME }}</p>
+        </div>
 
         <div style="margin-top: 20px">
           <b-row>
             <b-col cols="4" lg="4">
               <b-button
-                variant="outline-success"
+                variant="outline-info"
                 class="mb-2"
                 id="show-btn"
                 @click="showModal1(item)"
               >
-                <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
+                <b-icon
+                  icon="pencil-fill"
+                  aria-hidden="true"
+                ></b-icon>
               </b-button>
             </b-col>
             <b-col cols="4" lg="4">
@@ -33,18 +39,18 @@
                 variant="outline-secondary"
                 class="mb-2"
                 @click="showModal2(item)"
-                ><b-icon icon="gear-wide" aria-hidden="true"></b-icon
+                ><b-icon icon="key-fill" aria-hidden="true"></b-icon
               ></b-button>
             </b-col>
             <b-col cols="4" lg="4">
               <b-button variant="outline-danger" class="mb-2" @click="logouts">
-                <b-icon icon="power" aria-hidden="true"></b-icon>
+                <b-icon icon="box-arrow-left" aria-hidden="true"></b-icon>
               </b-button>
             </b-col>
           </b-row>
           <b-modal ref="my-modal1" hide-footer>
             <div class="d-block text-center">
-              <h3>เเก้ไขข้อมูล</h3>
+              <h5>เเก้ไขข้อมูล</h5>
             </div>
             <div style="margin-top: 20px">
               <b-form-input
@@ -69,14 +75,14 @@
             </div>
             <b-button
               class="mt-3"
-              variant="outline-danger"
+              variant="outline-success"
               block
               @click="Updatemember(item)"
               >บันทึก</b-button
             >
             <b-button
               class="mt-2"
-              variant="outline-warning"
+              variant="outline-danger"
               block
               @click="hideModal1"
               >ยกเลิก</b-button
@@ -84,13 +90,15 @@
           </b-modal>
           <b-modal ref="my-modal2" hide-footer>
             <div class="d-block text-center">
-              <h3>เเก้ไขรหัสผ่าน</h3>
+              <h5>เเก้ไขรหัสผ่าน</h5>
             </div>
             <div style="margin-top: 20px">
               <b-form-input
                 v-model="Word"
                 @keydown="wordKeydown($event)"
+                maxlength="12"
                 placeholder="Username"
+                disabled
               ></b-form-input>
             </div>
 
@@ -98,19 +106,25 @@
               <b-form-input
                 v-model="PASSWORD"
                 placeholder="Password"
+                v-on:keypress="NumbersOnly"
+                @keyup="checkpassWord"
               ></b-form-input>
+            </div>
+            <div v-if="checkpass" style="color: red">*กรอกให้ครบ 6 ตัว</div>
+            <div v-if="checkpassindex" style="color: red">
+              *รหัสผ่านนี้ไม่สามารถใช้ได้
             </div>
 
             <b-button
               class="mt-3"
-              variant="outline-danger"
+              variant="outline-success"
               block
               @click="Updatepassword(item)"
               >บันทึก</b-button
             >
             <b-button
               class="mt-2"
-              variant="outline-warning"
+              variant="outline-danger"
               block
               @click="hideModal2"
               >ยกเลิก</b-button
@@ -121,6 +135,11 @@
       <b-modal ref="Notpassword" centered hide-footer>
         <div class="d-block text-center">
           <b>รหัสผ่านนี้เคยถูกใช้ไปเเล้ว</b>
+        </div>
+      </b-modal>
+      <b-modal ref="Notpasswordcheck" centered hide-footer>
+        <div class="d-block text-center">
+          <b>ไม่สามารถใช้รหัสผ่านนี้ได้</b>
         </div>
       </b-modal>
     </div>
@@ -142,6 +161,8 @@ export default {
       picture: null,
       uploadValue: 0,
       item: null,
+      checkpass: false,
+      checkpassindex: false,
     };
   },
   mounted() {
@@ -159,6 +180,32 @@ export default {
       console.log("logout");
       this.$router.push({ path: "/" });
       localStorage.clear();
+    },
+    NumbersOnly(evt) {
+      evt = evt ? evt : window.event;
+      var charCode = evt.which ? evt.which : evt.keyCode;
+      if (
+        charCode > 31 &&
+        (charCode < 48 || charCode > 57) &&
+        charCode !== 46
+      ) {
+        evt.preventDefault();
+      } else {
+        return true;
+      }
+    },
+    checkpassWord() {
+      if (this.PASSWORD.length >= 6) {
+        this.checkpass = false;
+      } else {
+        this.checkpass = true;
+      }
+      var pattern = "0123456789012345789"; //to match circular sequence as well.
+      if (pattern.indexOf(this.PASSWORD) == -1) {
+        this.checkpassindex = false;
+      } else {
+        this.checkpassindex = true;
+      }
     },
     showModal1(item) {
       (this.NAME = item.NAME),
@@ -244,37 +291,50 @@ export default {
       this.$refs["my-modal1"].hide();
     },
     async Updatepassword(x) {
-      let checkpassword = await axios.post(
-        `${api_url.api_url}/checkUserpassword`,
-        {
-          MEMBER_ID: localStorage.getItem("IDMEMBER"),
-          PASSWORD: this.PASSWORD,
-        }
-      );
-      console.log(checkpassword.data);
-      if (checkpassword.data.length > 0) {
-        this.$refs["Notpassword"].show();
-      } else {
-        await axios
-          .post(`${api_url.api_url}/updatePassword`, {
-            ID: x.ID,
-            MEMBER_ID: x.MEMBER_ID,
-            USERNAME: this.Word,
-            PASSWORD: this.PASSWORD,
-          })
-          .then((response) => {
-            console.log(response.data);
-            axios
-              .post(`${api_url.api_url}/checkmember`, {
-                MEMBER_ID: localStorage.getItem("IDMEMBER"),
+      if (this.PASSWORD.length >= 6) {
+        if (this.checkpassindex == false) {
+          let checkpassword = await axios.post(
+            `${api_url.api_url}/checkUserpassword`,
+            {
+              MEMBER_ID: localStorage.getItem("IDMEMBER"),
+              PASSWORD: this.PASSWORD,
+            }
+          );
+          console.log(checkpassword.data);
+          if (checkpassword.data.length > 0) {
+            this.$refs["Notpassword"].show();
+          } else {
+            await axios
+              .post(`${api_url.api_url}/updatePassword`, {
+                ID: x.ID,
+                MEMBER_ID: x.MEMBER_ID,
+                USERNAME: this.Word,
+                PASSWORD: this.PASSWORD,
               })
               .then((response) => {
                 console.log(response.data);
-                this.item = response.data[0];
+                axios
+                  .post(`${api_url.api_url}/checkmember`, {
+                    MEMBER_ID: localStorage.getItem("IDMEMBER"),
+                  })
+                  .then((response) => {
+                    console.log(response.data);
+                    this.item = response.data[0];
+                  });
               });
-          });
+          }
+        } else {
+          this.$refs["Notpasswordcheck"].show();
+        }
+      } else {
+        this.checkpass = true;
       }
       this.$refs["my-modal2"].hide();
+    },
+    wordKeydown(e) {
+      if (/^\W$/.test(e.key)) {
+        e.preventDefault();
+      }
     },
   },
 };
@@ -284,7 +344,6 @@ export default {
   padding: 100px 20px;
   background-color: #f2f2f3;
   height: 100vh;
-
   display: flex;
   position: absolute;
   top: 0;
@@ -292,33 +351,6 @@ export default {
   width: 100%;
   height: 100%;
   padding: 1em;
-}
-.buttonP {
-  padding: 8px 20px;
-  font-size: 16px;
-  margin: 0px;
-  border-radius: 0.375rem;
-  border: none;
-  background-color: #f5365c;
-  color: white;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2),
-    0 6px 20px 0 rgba(224, 224, 224, 0.19);
-}
-
-.buttonP:hover {
-  transform: translateY(-1px);
-}
-/* CSS */
-
-.buttonP:focus {
-  background-color: #f5365c;
-  box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
-}
-
-.buttonP:active {
-  background-color: #bd3543;
-  box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
-  transform: translateY(0);
 }
 .cardP {
   border-radius: 20px !important;

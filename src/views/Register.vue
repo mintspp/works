@@ -5,7 +5,7 @@
       style="justify-content: center; align-items: center"
       align="center"
     >
-      <b-card class="card1" style="max-width: 30rem">
+      <b-card class="card1" style="max-width: 30rem; background-color:#314e68 ; color: #fff">
         <b-col>
           <div>
             <div align="right">
@@ -16,7 +16,7 @@
                 @click="Home()"
               ></b-icon>
             </div>
-            <div><h3>Create Account</h3></div>
+            <div><h5>Create Account</h5></div>
             <div class="mt-2" style="margin-top: 20px">
               <div style="margin-top: 20px">
                 <b-form-input
@@ -76,7 +76,7 @@
           </div>
         </b-col>
       </b-card>
-      <b-modal ref="Notpassword" centered hide-footer>
+      <b-modal ref="Notusername" centered hide-footer>
         <div class="d-block text-center">
           <b>ชื่อผู้ใช้งานนี้ถูกใช้ไปเเล้ว</b>
         </div>
@@ -150,15 +150,15 @@ export default {
     async addREGISTER() {
       if (this.PASSWORD.length >= 6) {
         if (this.checkpassindex == false) {
-          let checkpassword = await axios.post(
+          let checkusername = await axios.post(
             `${api_url.api_url}/checkUserpasswordRegister`,
             {
               USERNAME: this.Word,
             }
           );
-          console.log(checkpassword.data);
-          if (checkpassword.data.length > 0) {
-            this.$refs["Notpassword"].show();
+          console.log(checkusername.data.length > 0);
+          if (checkusername.data.length > 0) {
+               this.$refs["Notusername"].show();
           } else {
             this.picture = null;
             const storageRef = firebase
@@ -193,8 +193,8 @@ export default {
                 });
               }
             );
-          }
             this.$router.push({ path: "/" });
+          }
         } else {
           this.$refs["Notpasswordcheck"].show();
         }
@@ -216,9 +216,8 @@ export default {
 <style scoped>
 .screen {
   padding: 0px 20px;
-  background-color: #f2f2f3;
+  background-color:  #f2f2f3;
   height: 100vh;
-
   display: flex;
   position: absolute;
   top: 0;
@@ -228,15 +227,12 @@ export default {
   padding: 1em;
 }
 .card1 {
-  /* border: none;
-  color: rgb(85, 85, 85); */
-
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2),
     0 10px 20px 0 rgba(124, 124, 124, 0.19);
 }
 .buttonL {
-  padding: 10px 20px;
-  font-size: 16px;
+  padding: 8px 20px;
+  font-size: 14px;
   margin: 0px;
   border-radius: 0.375rem;
   border: none;
@@ -249,7 +245,6 @@ export default {
 .buttonL:hover {
   transform: translateY(-1px);
 }
-/* CSS */
 
 .buttonL:focus {
   background-color: #f5365c;

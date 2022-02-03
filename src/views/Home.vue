@@ -8,7 +8,7 @@
       <b-card
         @submit.prevent="login"
         class="cardlogin"
-        style="background-color: #2e4a62; padding: 0px; color: white"
+        style="background-color: #314e68; padding: 0px; color:#fff;width: 600px;"
       >
         <b-row>
           <b-col cols="12" lg="6" style="background-color: ">
@@ -21,10 +21,10 @@
             />
           </b-col>
           <b-col cols="12" lg="6">
-            <h3 style="color: #fff; margin-top: 20px">Member Login</h3>
+            <h5 style=" margin-top: 20px">Member Login</h5>
 
             <div class="mt-2" align="left">
-              <b-input-group size="sm" class="mb-2" style="margin-top: 25px">
+              <b-input-group size="sm" class="mb-2" style="margin-top: 20px">
                 <b-input-group-prepend is-text>
                   <b-icon icon="person-fill"></b-icon>
                 </b-input-group-prepend>
@@ -55,10 +55,11 @@
               >
                 <b>LOGIN</b>
               </button>
-              <br />
-              <a style="margin-top: 10px" @click="goRegister()"
+              <div style="margin-top: 10px">
+                <a  @click="goRegister()"
                 >Create Account ?</a
               >
+              </div>
             </div>
           </b-col>
         </b-row>
@@ -110,10 +111,8 @@ export default {
 </script>
 <style scoped>
 .screen {
-  /* padding: 0px 20px; */
   background-color: #f2f2f3;
   height: 100vh;
-
   display: flex;
   position: absolute;
   top: 0;
@@ -123,13 +122,13 @@ export default {
   padding: 1em;
 }
 .buttonL {
-  padding: 10px 20px;
-  font-size: 16px;
+  padding: 8px 20px;
+  font-size: 14px;
   margin: 0px;
   border-radius: 0.375rem;
   border: none;
   background-color: #f5365c;
-  color: white;
+  color: #ffff;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2),
     0 6px 20px 0 rgba(224, 224, 224, 0.19);
 }
@@ -137,7 +136,6 @@ export default {
 .buttonL:hover {
   transform: translateY(-1px);
 }
-/* CSS */
 
 .buttonL:focus {
   background-color: #f5365c;
